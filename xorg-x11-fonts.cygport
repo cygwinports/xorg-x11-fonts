@@ -1,0 +1,168 @@
+inherit xorg
+
+NAME="xorg-x11-fonts"
+VERSION=7.5
+RELEASE=1
+CATEGORY="X11"
+SUMMARY="X11 core fonts"
+DESCRIPTION=
+HOMEPAGE="http://www.x.org/"
+
+pkgs100dpi=(
+	font-adobe-100dpi-1.0.2
+	font-adobe-utopia-100dpi-1.0.3
+	font-bh-100dpi-1.0.2
+	font-bh-lucidatypewriter-100dpi-1.0.2
+	font-bitstream-100dpi-1.0.2
+)
+pkgs75dpi=(
+	font-adobe-75dpi-1.0.2
+	font-adobe-utopia-75dpi-1.0.3
+	font-bh-75dpi-1.0.2
+	font-bh-lucidatypewriter-75dpi-1.0.2
+	font-bitstream-75dpi-1.0.2
+)
+pkgsType1=(
+	font-adobe-utopia-type1-1.0.3
+	font-bitstream-type1-1.0.2
+	font-xfree86-type1-1.0.3
+)
+pkgsCyrillic=(
+	font-cronyx-cyrillic-1.0.2
+	font-misc-cyrillic-1.0.2
+	font-screen-cyrillic-1.0.3
+	font-winitzki-cyrillic-1.0.2
+)
+pkgsEthiopic=(
+	font-misc-ethiopic-1.0.2
+)
+pkgsMisc=(
+	encodings-1.0.4
+	font-alias-1.0.3
+	font-arabic-misc-1.0.2
+	font-cursor-misc-1.0.2
+	font-daewoo-misc-1.0.2
+	font-dec-misc-1.0.2
+	font-isas-misc-1.0.2
+	font-jis-misc-1.0.2
+	font-micro-misc-1.0.2
+	font-misc-misc-1.1.1
+	font-mutt-misc-1.0.2
+	font-schumacher-misc-1.1.1
+	font-sony-misc-1.0.2
+	font-sun-misc-1.0.2
+)
+
+SRC_URI=
+for t in ${pkgs100dpi[*]} ${pkgs75dpi[*]} ${pkgsType1[*]} ${pkgsCyrillic[*]} ${pkgsEthiopic[*]} ${pkgsMisc[*]}
+do
+SRC_URI+=" http://xorg.freedesktop.org/releases/individual/font/$t.tar.bz2"
+done
+SRC_DIR=.
+
+PKG_NAMES="${NAME}-dpi100 ${NAME}-dpi75 ${NAME}-misc ${NAME}-Type1 ${NAME}-cyrillic ${NAME}-ethiopic"
+xorg_x11_fonts_dpi100_CONTENTS="
+	etc/X11/fontpath.d/${NAME}-100dpi*
+	usr/share/X11/fonts/100dpi/
+	usr/share/doc/${NAME}/*-100dpi
+"
+for p in ${pkgs100dpi[*]}
+do
+	xorg_x11_fonts_dpi100_OBSOLETES+=" ${p%-[0-9]*}"
+done
+xorg_x11_fonts_dpi75_CONTENTS="
+	etc/X11/fontpath.d/${NAME}-75dpi*
+	usr/share/X11/fonts/75dpi/
+	usr/share/doc/${NAME}/*-75dpi
+"
+for p in ${pkgs75dpi[*]}
+do
+	xorg_x11_fonts_dpi75_OBSOLETES+=" ${p%-[0-9]*}"
+done
+xorg_x11_fonts_cyrillic_CONTENTS="
+	etc/X11/fontpath.d/${NAME}-cyrillic*
+	usr/share/X11/fonts/cyrillic
+	usr/share/doc/${NAME}/*-cyrillic
+"
+for p in ${pkgsCyrillic[*]}
+do
+	xorg_x11_fonts_cyrillic_OBSOLETES+=" ${p%-[0-9]*}"
+done
+xorg_x11_fonts_ethiopic_CONTENTS="
+	etc/postinstall/${NAME}-ethiopic.sh
+	etc/X11/fontpath.d/${NAME}-OTF
+	etc/X11/fontpath.d/${NAME}-TTF
+	usr/share/X11/fonts/OTF/
+	usr/share/X11/fonts/TTF/
+	usr/share/doc/${NAME}/*-ethiopic
+"
+for p in ${pkgsEthiopic[*]}
+do
+	xorg_x11_fonts_ethiopic_OBSOLETES+=" ${p%-[0-9]*}"
+done
+xorg_x11_fonts_misc_CONTENTS="
+	etc/X11/fontpath.d/${NAME}-misc*
+	usr/share/X11/fonts/encodings
+	usr/share/X11/fonts/misc
+	usr/share/doc/${NAME}/*encodings
+	usr/share/doc/${NAME}/*-misc
+"
+for p in ${pkgsMisc[*]} font-misc-meltho
+do
+	xorg_x11_fonts_misc_OBSOLETES+=" ${p%-[0-9]*}"
+done
+xorg_x11_fonts_Type1_CONTENTS="
+	etc/postinstall/${NAME}-Type1.sh
+	etc/X11/fontpath.d/${NAME}-Type1*
+	usr/share/X11/fonts/Type1
+	usr/share/doc/${NAME}/*-type1
+"
+for p in ${pkgsType1[*]} font-bh-ttf font-bh-type1 font-ibm-type1
+do
+	xorg_x11_fonts_Type1_OBSOLETES+=" ${p%-[0-9]*}"
+done
+
+ARCH=noarch
+
+src_compile() {
+	for t in ${pkgs100dpi[*]} ${pkgs75dpi[*]} ${pkgsType1[*]} ${pkgsCyrillic[*]} ${pkgsEthiopic[*]} ${pkgsMisc[*]}
+	do
+		pushd ${S}/$t
+		cygautoreconf
+		popd
+
+		mkdir -p ${B}/$t
+		pushd ${B}/$t
+		CYGCONF_SOURCE=${S}/$t \
+		cygconf
+		cygmake
+		popd
+	done
+}
+
+src_install() {
+	for t in ${pkgs100dpi[*]} ${pkgs75dpi[*]} ${pkgsType1[*]} ${pkgsCyrillic[*]} ${pkgsEthiopic[*]} ${pkgsMisc[*]}
+	do
+		n=${t%-[0-9]*}
+		n=${n#font-}
+		pushd ${B}/$t
+		cyginstall
+		popd
+		pushd ${S}/$t
+		newdoc ChangeLog ChangeLog.${n}
+		newdoc COPYING COPYING.${n}
+		newdoc README README.${n}
+		popd
+	done
+
+	dodir /etc/X11/fontpath.d
+	for f in misc:unscaled:pri=10 75dpi:unscaled:pri=20 100dpi:unscaled:pri=30 Type1 TTF OTF cyrillic
+	do
+		dosym /usr/share/X11/fonts/${f%%:*} /etc/X11/fontpath.d/${NAME}-$f
+	done
+
+	dodir /etc/postinstall
+	echo "fc-cache /usr/share/X11/fonts/TTF" > ${D}/etc/postinstall/${NAME}-ethiopic.sh
+	echo "fc-cache /usr/share/X11/fonts/Type1" > ${D}/etc/postinstall/${NAME}-Type1.sh
+	chmod +x ${D}/etc/postinstall/*.sh
+}
