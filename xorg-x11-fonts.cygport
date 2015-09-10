@@ -2,7 +2,7 @@ inherit xorg
 
 NAME="xorg-x11-fonts"
 VERSION=7.5
-RELEASE=1
+RELEASE=2
 CATEGORY="X11"
 SUMMARY="X11 core fonts"
 DESCRIPTION=
@@ -66,19 +66,13 @@ xorg_x11_fonts_dpi100_CONTENTS="
 	usr/share/X11/fonts/100dpi/
 	usr/share/doc/${NAME}/*-100dpi
 "
-for p in ${pkgs100dpi[*]}
-do
-	xorg_x11_fonts_dpi100_OBSOLETES+=" ${p%-[0-9]*}"
-done
+xorg_x11_fonts_dpi100_OBSOLETES=" font-adobe-dpi100 font-adobe-utopia-dpi100 font-bh-dpi100 font-bh-lucidatypewriter-dpi100 font-bitstream-dpi100"
 xorg_x11_fonts_dpi75_CONTENTS="
 	etc/X11/fontpath.d/${NAME}-75dpi*
 	usr/share/X11/fonts/75dpi/
 	usr/share/doc/${NAME}/*-75dpi
 "
-for p in ${pkgs75dpi[*]}
-do
-	xorg_x11_fonts_dpi75_OBSOLETES+=" ${p%-[0-9]*}"
-done
+xorg_x11_fonts_dpi75_OBSOLETES=" font-adobe-dpi75 font-adobe-utopia-dpi75 font-bh-dpi75 font-bh-lucidatypewriter-dpi75 font-bitstream-dpi75"
 xorg_x11_fonts_cyrillic_CONTENTS="
 	etc/X11/fontpath.d/${NAME}-cyrillic*
 	usr/share/X11/fonts/cyrillic
@@ -107,7 +101,7 @@ xorg_x11_fonts_misc_CONTENTS="
 	usr/share/doc/${NAME}/*encodings
 	usr/share/doc/${NAME}/*-misc
 "
-for p in ${pkgsMisc[*]} font-misc-meltho
+for p in ${pkgsMisc[*]} font-encodings font-misc-meltho
 do
 	xorg_x11_fonts_misc_OBSOLETES+=" ${p%-[0-9]*}"
 done
