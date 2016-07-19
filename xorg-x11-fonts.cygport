@@ -2,7 +2,7 @@ inherit xorg
 
 NAME="xorg-x11-fonts"
 VERSION=7.5
-RELEASE=2
+RELEASE=3
 CATEGORY="X11"
 SUMMARY="X11 core fonts"
 DESCRIPTION=
@@ -83,7 +83,6 @@ do
 	xorg_x11_fonts_cyrillic_OBSOLETES+=" ${p%-[0-9]*}"
 done
 xorg_x11_fonts_ethiopic_CONTENTS="
-	etc/postinstall/${NAME}-ethiopic.sh
 	etc/X11/fontpath.d/${NAME}-OTF
 	etc/X11/fontpath.d/${NAME}-TTF
 	usr/share/X11/fonts/OTF/
@@ -106,7 +105,6 @@ do
 	xorg_x11_fonts_misc_OBSOLETES+=" ${p%-[0-9]*}"
 done
 xorg_x11_fonts_Type1_CONTENTS="
-	etc/postinstall/${NAME}-Type1.sh
 	etc/X11/fontpath.d/${NAME}-Type1*
 	usr/share/X11/fonts/Type1
 	usr/share/doc/${NAME}/*-type1
@@ -154,9 +152,4 @@ src_install() {
 	do
 		dosym /usr/share/X11/fonts/${f%%:*} /etc/X11/fontpath.d/${NAME}-$f
 	done
-
-	dodir /etc/postinstall
-	echo "fc-cache /usr/share/X11/fonts/TTF" > ${D}/etc/postinstall/${NAME}-ethiopic.sh
-	echo "fc-cache /usr/share/X11/fonts/Type1" > ${D}/etc/postinstall/${NAME}-Type1.sh
-	chmod +x ${D}/etc/postinstall/*.sh
 }
